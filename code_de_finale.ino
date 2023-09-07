@@ -300,7 +300,7 @@ void loop()
     correctAngle(); //tare the value
     checkQuadrant(); //check quadrant, check rotations, check absolute angular position
     Serial.print(totalAngle); //absolute position of the motor expressed in degree angles, 2 digits
-    Serial.print('e');
+    Serial.print('d');
   }
 
   void ReadRawAngle(void)
