@@ -15,7 +15,7 @@ Hard-coded to use only the ports from servo 1 to servo 7.
 // #defines
   #define servo1	(16>>1)
   #define servo2	(18>>1)
-  #define UART_BAUD_RATE	115200
+  #define UART_BAUD_RATE	9600
   #define LED 13
   #define SERIAL_BUFFER_SIZE  256
   #define State_Start  0
@@ -92,6 +92,7 @@ void setup()
 	char buffer[10],tmp,tmp1;
 	float range;
 	Serial.begin(UART_BAUD_RATE);
+  Serial.println("Started serial comms.");
 	pinMode(13, OUTPUT);
 	pinMode(2, OUTPUT);
 	pinMode(8, INPUT);
@@ -106,7 +107,7 @@ void setup()
 	delay(500);
 	state=State_Start;
   
-  // Servo configuration
+  /* Servo configuration
     I2C_SERVOMAX(1,2500); 
     I2C_SERVOMAX(2,2500); 
     I2C_SERVOMAX(3,2500); 
@@ -183,13 +184,15 @@ void setup()
     I2C_SERVOREVERSE(17,0); 
     I2C_SERVOREVERSE(18,0);		//Directions (Servo Reverse)
 
-  
+    I2C_SERVOSPEED(50);*/
   // ------------------------------------------------------------------------
   /*// for encoder
   // checkMagnetPresence(); //check the magnet (blocks until magnet is found)
   ReadRawAngle(); //make a reading so the degAngle gets updated
   startAngle = degAngle; //update startAngle with degAngle - for taring
   */
+
+  Serial.println("Completed setup.");
 
 }
 
@@ -203,16 +206,22 @@ void loop()
       
       case 'S':*/
       // servo command mode        
-        while (Serial.available() > 0) {
+          while (Serial.available() > 0) {
           int inChar = Serial.read();
           
           // for the speed setting option
           if(speedRecvInProgress == true){
             if (isDigit(inChar)) {
+              Serial.println();
+              Serial.print("Detected number: ");
+              Serial.println(inChar);
               // convert the incoming byte to a char and add it to the string:
               tempString += (char)inChar;
             }
             else if (inChar == '_') {
+              Serial.println();
+              Serial.print("Setting servo speed to: ");
+              Serial.println(tempString);
               // convert the tempString to int and set the servo speed:
               I2C_SERVOSPEED(tempString.toInt());
               // then reset the tempString:
@@ -222,15 +231,26 @@ void loop()
             }
           }
           else if (isDigit(inChar)) {
+            Serial.println();
+            Serial.print("Found a digit: ");
+            Serial.println(inChar);
             // convert the incoming byte to a char and add it to the string:
             inString += (char)inChar;
           }
           else if (inChar == 'p') {
+            Serial.println();
+            Serial.print("Skipping servo number ");
+            Serial.println(counter);
             // keep the present servopos unchanged and skip to the next one:
             counter++;
           }   
           // if we get an underscore, store the int value in the respective servopos element:
           else if (inChar == '_') {
+            Serial.println();
+            Serial.print("Encountered '_'. Setting servo number ");
+            Serial.print(counter);
+            Serial.print(" to ");
+            Serial.println(inString);
             servopos[counter] = inString.toInt();
             counter++;
             // then clear the string for new input:
@@ -238,9 +258,11 @@ void loop()
           }
           // set servo speed value
           else if (inChar == 's') {            
+            Serial.println();
+            Serial.println("Awaiting speed input...");
             speedRecvInProgress = true;
           }
-          /*// set delay value
+          /*// set delay value (TBC)
           else if (inChar == 'd') {
             while (Serial.available() > 0) {
               int tempChar = Serial.read();
@@ -258,6 +280,11 @@ void loop()
             }
           }*/
           else if (inChar == 'e') {
+              Serial.println();
+              Serial.println("Encountered 'e'. Printing and writing all the servo positions:");
+              for(int i = 0; i<7; i++){
+                Serial.println(servopos[i]);
+              }
               // write the new servo positions
               ServoSetAll(servopos[0],servopos[1],servopos[2],servopos[3],servopos[4],servopos[5],servopos[6],0,0,0,0,0,0,0,0,0,0,0);
               // then wait for the servos to reach the desired position:
@@ -371,7 +398,6 @@ void loop()
 
   void checkQuadrant(void)
   {
-    //
     //Quadrants:
     //4  |  1
     //---|---
