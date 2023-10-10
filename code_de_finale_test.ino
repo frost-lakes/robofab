@@ -65,7 +65,7 @@ Hard-coded to use only the ports from servo 1 to servo 7.
   unsigned long currentMillis = millis();
   char LEDState=0;
 
-  unsigned int servopos[7] = {500, 500, 500, 500, 500, 500, 500} ; // uint to hold servo position in microseconds (0-180 deg is mapped to to 500-2500 us), initialised to 0 deg
+  unsigned int servopos[7] = {1500, 1500, 1500, 1500, 1500, 1500, 1500} ; // uint to hold servo position in microseconds (0-180 deg is mapped to to 500-2500 us), initialised to 0 deg
   String inString = "";  // string to hold input
   String tempString = ""; //string to hold the speed and delay values
   int counter = 0; // counter for the servopos array
@@ -192,7 +192,9 @@ void setup()
   startAngle = degAngle; //update startAngle with degAngle - for taring
   */
 
+  I2C_SERVOSPEED(30);
   Serial.println("Completed setup.");
+  Serial.println("Default servo speed is 30. Enter 'e' to initialize all servos to 90 deg.");
 
 }
 
